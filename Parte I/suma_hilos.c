@@ -1,3 +1,7 @@
+
+// --- Estudiantes: Valeria Barboza C4C983, Jose Pablo Jimenez C4G332 Keylor Castro B80733
+
+
 //Importar bibliotecas
 #include <stdio.h> // Entrada y salida de datos
 #include <stdlib.h> // Manejo de memoria dinamica
