@@ -34,10 +34,11 @@ int pistas_ocupadas = 0; // <---- ¡Variable compartida!
 //¡Tomen en cuenta que printf no es thread-safe por defecto!
 void render_radar_log(int vuelo_id, const char* accion) {
     pthread_mutex_lock(&mutex); 
-    pistas_ocupadas++;
     printf("Vuelo %02d %-40s | Pistas Ocupadas: %d/%d \n", 
     vuelo_id, accion, pistas_ocupadas, PISTAS_DISPONIBLES);
+
     pthread_mutex_unlock(&mutex);
+
 }
 
 void* rutina_vuelo(void* arg) {
@@ -45,12 +46,22 @@ void* rutina_vuelo(void* arg) {
 
     render_radar_log(vuelo_id, ": entrando al espacio aereo. Solicitando pista para el aterrizaje.");
     sem_wait(&semaforo_de_pistas);
+    pthread_mutex_lock(&mutex); 
+    pistas_ocupadas++;
+    pthread_mutex_unlock(&mutex);
+
     render_radar_log(vuelo_id, ">> aterrizando y desembarcando.");
+
 
     //Esto simula el tiempo impredecible en pista
     int tiempo_pista = 1 + (rand() % 4); // 1 a 4 segundos
     sleep(tiempo_pista);
     
+
+    
+    pthread_mutex_lock(&mutex); 
+    pistas_ocupadas--;
+    pthread_mutex_unlock(&mutex);
     render_radar_log(vuelo_id, "<< ha despegado. Pista liberada.");
     sem_post(&semaforo_de_pistas);
 
@@ -60,9 +71,9 @@ void* rutina_vuelo(void* arg) {
 int main() {
     //Semilla
     srand(time(NULL)); 
-
     sem_init(&semaforo_de_pistas, 0, PISTAS_DISPONIBLES);
     pthread_mutex_init(&mutex, NULL);
+
     pthread_t torre_control[TOTAL_VUELOS];
     int ids_vuelos[TOTAL_VUELOS];
 
@@ -71,13 +82,21 @@ int main() {
 
     for(int i = 0; i < TOTAL_VUELOS; i++) {
         ids_vuelos[i] = i + 1;
-
+        pthread_create(&torre_control[i], NULL,rutina_vuelo,&ids_vuelos[i]);
+            
         //Esto simula las llegadas de aviones en momentos aleatorios (0 a 0.5s)
         usleep(rand() % 500000); 
     }
+    
+    for (int i = 0; i < TOTAL_VUELOS; i++)
+    {
+        pthread_join(torre_control[i], NULL);
+    }
+    
 
     printf("\n=== CIERRE DE OPERACIONES. ESPACIO AÉREO DESPEJADO. ===\n");
 
     sem_destroy(&semaforo_de_pistas);
+    pthread_mutex_destroy(&mutex);
     return 0;
 }
