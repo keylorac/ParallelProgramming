@@ -1,0 +1,37 @@
+* ¿Qué sucede con el uso de las pistas si el personal 
+de tierra es mucho más lento que los aviones?
+
+    Se llenarìa el bùfer y el avion quedaria estancado en el wait 
+    por lo que no soltaria la pista y estaria una pista ocupada por demasiado tiempo 
+    y no podrian aterrizar otros aviones
+
+* Si el búfer de maletas está lleno y hay 3 aviones intentando descargar, 
+¿en qué estado (ready, running o blocked) se encuentran esos hilos en el planificador 
+y qué evento específico debe ocurrir para que pasen a la cola de ready?
+
+    Si hay 3 aviones que quieren descargar pero no hay campo, los hilos estarìan en blocked. 
+    Cuando el personal hace un post el hilo pasa a estar en la cola de ready. 
+
+* Debe justificar, con las herramientas vistas, mediante caja blanca que el programa no tiene ningún problema de concurrencia y paralelismo.
+
+    ·el registro anterior se pierde por demasiado texto en la pantalla· 
+
+    Avion 15 descargando maleta en la posicion 1 
+    Personal 4 retira la maleta del vuelo 15 de la posicion 1 
+    Avion 15 descargando maleta en la posicion 2 
+    Personal 4 retira la maleta del vuelo 15 de la posicion 2 
+    Avion 15 descargando maleta en la posicion 3 
+    Personal 2 retira la maleta del vuelo 15 de la posicion 3 
+    Avion 15 descargando maleta en la posicion 4 
+    Personal 2 retira la maleta del vuelo 15 de la posicion 4 
+    Vuelo 14 << ha despegado. Pista liberada.         | Pistas Ocupadas: 1/3 
+    Vuelo 15 << ha despegado. Pista liberada.         | Pistas Ocupadas: 0/3 
+
+    === CIERRE DE OPERACIONES. ESPACIO AÉREO DESPEJADO. ===
+    ==14786== 
+    ==14786== Use --history-level=approx or =none to gain increased speed, at
+    ==14786== the cost of reduced accuracy of conflicting-access information
+    ==14786== For lists of detected and suppressed errors, rerun with: -s
+    ==14786== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 106928 from 112)
+
+    pero se evidencia que no detecta ningun error o problema de paralelismo o concurrencia
