@@ -1,18 +1,49 @@
-* ¿Qué sucede con el uso de las pistas si el personal 
+
+NOMBRE DEL PROYECTO: PRÁCTICA DE LABORATORIO 3
+ESTUDIANTES: JOSE PABLO JIMENEZ ZAMORA, KEYLOR ARLEY CASTRO, VALERIA BARBOZA ACOSTA
+-----------
+
+A.
+
+1. * ¿Qué ocurre a nivel del TCB cuando el hilo N+1 solicita la pista y cómo se garantiza su reactivación?
+
+    Cuando el hilo N+1 ejecuta sem_wait(), el sistema operativo detecta que el contador 
+    del semáforo está en 0. En ese momento, el TCB del hilo cambia su estado de Ready a Blocked. 
+    El planificador (scheduler) lo saca de la CPU y lo coloca en una cola de espera asociada al semáforo.
+
+    La reactivación se da gracias al sem_post() ejecutada por un avion que libere una pista. Esta instruccion
+    aumenta en 1 el semáforo y envia al sistema operativo para que mueva el TCB de la cola de espera a la de Ready. 
+
+
+2. ¿Qué sucede si comentan/eliminan sem_post()? 
+
+    Los aviones aterrizarán hasta llenar las pistas pero no liberarian el recurso.
+    Además que los hilos restantes se quedarian bloqueados en el wait, provocando que el programa se detenga. 
+    Con Helgrind se encontraria el error y dice que se ha provocado un Hanging.
+
+3. ¿Qué sucede si comentan/eliminan el pthread_mutex_lock() (en la sección de pistas_ocupadas)?
+
+    Al no tener el mutex en la variable pistas_ocupadas que es global ocurren condiciones de carrera, al varios hilos 
+    querer incrementar o decrementar la variable al mismo tiempo. Causando variaciones en los resultados. 
+    Usando Helgrind nos da el error de possible data race during read/write. 
+
+B.
+
+1. * ¿Qué sucede con el uso de las pistas si el personal 
 de tierra es mucho más lento que los aviones?
 
     Se llenarìa el bùfer y el avion quedaria estancado en el wait 
     por lo que no soltaria la pista y estaria una pista ocupada por demasiado tiempo 
     y no podrian aterrizar otros aviones
 
-* Si el búfer de maletas está lleno y hay 3 aviones intentando descargar, 
+2. * Si el búfer de maletas está lleno y hay 3 aviones intentando descargar, 
 ¿en qué estado (ready, running o blocked) se encuentran esos hilos en el planificador 
 y qué evento específico debe ocurrir para que pasen a la cola de ready?
 
     Si hay 3 aviones que quieren descargar pero no hay campo, los hilos estarìan en blocked. 
     Cuando el personal hace un post el hilo pasa a estar en la cola de ready. 
 
-* Debe justificar, con las herramientas vistas, mediante caja blanca que el programa no tiene ningún problema de concurrencia y paralelismo.
+3. * Debe justificar, con las herramientas vistas, mediante caja blanca que el programa no tiene ningún problema de concurrencia y paralelismo.
 
     ·el registro anterior se pierde por demasiado texto en la pantalla· 
 
