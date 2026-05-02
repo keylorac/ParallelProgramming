@@ -66,3 +66,30 @@ y qué evento específico debe ocurrir para que pasen a la cola de ready?
     ==14786== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 106928 from 112)
 
     pero se evidencia que no detecta ningun error o problema de paralelismo o concurrencia
+
+C.
+
+1. * ¿Quién determina el tiempo total de espera de la barrera?
+
+El tiempo total de espera lo determina el servicio más lento.
+Esto se debe a que todos los hilos deben llegar a la barrera antes de continuar, por lo que el hilo que más tarda define el tiempo total.
+
+2. * ¿Qué sucede si no reinician la barrera de los aviones si el programa se ejecuta múltiples veces?
+
+Si no se reinicia el contador de la barrera, los hilos no se sincronizan correctamente en las siguientes ejecuciones.
+Esto puede provocar que algunos hilos no esperen o que otros queden bloqueados indefinidamente, rompiendo el comportamiento de la barrera.
+
+3. * ¿Por qué el último hilo en llegar debe utilizar pthread_cond_broadcast() en lugar de pthread_cond_signal()?
+
+pthread_cond_broadcast() despierta a todos los hilos que están esperando en la barrera, mientras que pthread_cond_signal() solo despierta a uno.
+
+Si se utilizara signal, los demás hilos quedarían bloqueados esperando en la barrera, lo que provocaría un deadlock.
+
+4. * Proponga un escenario donde un error en el contador global de la barrera podría causar que un avión se quede atrapado para siempre en la pista
+
+Si el contador de la barrera no se maneja correctamente (por ejemplo, no se reinicia o se incrementa de forma incorrecta), algunos hilos pueden quedar esperando indefinidamente en la barrera.
+
+En este caso, el avión no podría continuar su ejecución y no liberaría la pista.
+Esto causaría que la pista quede ocupada permanentemente, impidiendo que otros aviones puedan aterrizar.
+
+Este problema afecta directamente al multiplex, ya que reduce la cantidad de pistas disponibles y puede llegar a bloquear todo el sistema.
